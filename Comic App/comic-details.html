@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Comic Details</title>
+  <style>
+    /* Add your CSS styles here */
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    .comic-details {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .comic-img {
+      max-width: 100%;
+      height: auto;
+      margin-bottom: 20px;
+    }
+    .comic-title {
+      font-weight: bold;
+      font-size: 1.2em;
+      margin-bottom: 10px;
+    }
+    .comic-date {
+      font-size: 0.9em;
+      color: #666;
+    }
+    .comic-description {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="comic-details" id="comic-details">
+    <h1>Loading Comic Details...</h1>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const comicDetailsContainer = document.getElementById('comic-details');
+
+      // Get the date added from the query string
+      const urlParams = new URLSearchParams(window.location.search);
+      const dateAdded = urlParams.get('dateAdded');
+
+      if (!dateAdded) {
+        comicDetailsContainer.innerHTML = '<h1>Date Added not provided</h1>';
+        return;
+      }
+
+      // Fetch comic details from Comic Vine API
+      fetch(`https://comicvine.gamespot.com/api/issues/?api_key=6df6cd7a6bab3dc9f2df2cd381e321ae8e02a4f6&format=json&filter=date_added:${dateAdded}`)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          const comic = data.results[0];
+
+          // Create elements to display comic details
+          const titleElement = document.createElement('div');
+          titleElement.classList.add('comic-title');
+          titleElement.textContent = comic.name;
+
+          const imageElement = document.createElement('img');
+          imageElement.classList.add('comic-img');
+          imageElement.src = comic.image.original_url;
+
+          const dateElement = document.createElement('div');
+          dateElement.classList.add('comic-date');
+          dateElement.textContent = `Date Added: ${comic.date_added}`;
+
+          const dateRelElement = document.createElement('div');
+          dateRelElement.classList.add('comic-date-rel');
+          dateRelElement.textContent = `Date Released: ${comic.cover_date}`;
+
+          const descriptionElement = document.createElement('div');
+          descriptionElement.classList.add('comic-description');
+          descriptionElement.textContent = comic.team_credits;
+
+          const charcreditsContainer = document.createElement('div');
+          charcreditsContainer.classList.add('CharCredits');
+          charcreditsContainer.textContent = comic.character_credits;
+
+          const loccreditsContainer = document.createElement('div');
+          loccreditsContainer.classList.add('CharCredits');
+          loccreditsContainer.textContent = comic.location_credits;
+
+          // Clear loading message and append comic details to the container
+          comicDetailsContainer.innerHTML = '';
+          comicDetailsContainer.appendChild(titleElement);
+          comicDetailsContainer.appendChild(imageElement);
+          comicDetailsContainer.appendChild(dateElement);
+          comicDetailsContainer.appendChild(dateRelElement);
+          comicDetailsContainer.appendChild(descriptionElement);
+          comicDetailsContainer.appendChild(charcreditsContainer);
+          comicDetailsContainer.appendChild(loccreditsContainer);
+        })
+        .catch(error => {
+          comicDetailsContainer.innerHTML = '<h1>Error Fetching Comic Details</h1>';
+          console.error('Error fetching comic details:', error);
+        });
+    });
+  </script>
+</body>
+</html>

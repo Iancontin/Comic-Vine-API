@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Latest Comics</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    .comics-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+    .comic {
+      border: 1px solid #ccc;
+      padding: 10px;
+      cursor: pointer;
+    }
+    .comic img {
+      max-width: 100%;
+      height: auto;
+      margin-bottom: 10px;
+    }
+    .comic-name {
+      font-weight: bold;
+      font-size: 0.9em;
+    }
+    .comic-date {
+      font-size: 0.8em;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <h1>Latest Comics</h1>
+  <div class="comics-container" id="comics-container"></div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const comicsContainer = document.getElementById('comics-container');
+
+      // Fetch latest comics from Comic Vine API
+      fetch(`https://comicvine.gamespot.com/api/issues/?api_key=6df6cd7a6bab3dc9f2df2cd381e321ae8e02a4f6&format=json&sort=date_added:desc`)
+        .then(response => {
+          /*if (!response.ok) {
+            throw new Error(response);
+          }*/
+          return response.json();
+        })
+        .then(data => {
+          data.results.forEach(comic => {
+            const comicElement = document.createElement('div');
+            comicElement.classList.add('comic');
+
+            // Add image
+            const image = document.createElement('img');
+            image.src = comic.image.original_url;
+            comicElement.appendChild(image);
+
+            // Add name
+            const name = document.createElement('div');
+            name.classList.add('comic-name');
+            name.textContent = comic.name;
+            comicElement.appendChild(name);
+
+            // Add date
+            const date = document.createElement('div');
+            date.classList.add('comic-date');
+            date.textContent = `Date Added: ${new Date(comic.date_added).toLocaleDateString()}`;
+            comicElement.appendChild(date);
+
+            // Open comic details on click
+            comicElement.addEventListener('click', () => {
+              window.location.href = `comic-details.html?dateAdded=${comic.date_added}`;
+            });
+
+            // Append comic element to container
+            comicsContainer.appendChild(comicElement);
+          });
+        })
+        .catch(error => console.error('Error fetching comics:', error));
+    });
+  </script>
+</body>
+</html>
